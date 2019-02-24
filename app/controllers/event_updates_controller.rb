@@ -1,10 +1,11 @@
 class EventUpdatesController < ApplicationController
   before_action :authenticate_user!, except: [:show]
   before_action :set_event_update, only: [:destroy]
+  before_action :set_event, only: :create
   before_action :access_allowed?
 
   def create
-    @event_update = @event.event_updates.create(event_updates_params)
+    @event_update = @event.event_updates.create(event_update_params)
   end
 
   def destroy
@@ -16,7 +17,8 @@ class EventUpdatesController < ApplicationController
   private
 
     def event_update_params
-      params.require(:event_update).permit(:details)
+      _params = params.require(:event_update).permit(:details)
+      _params.merge(user_id: current_user.id)
     end
 
     def set_event_update
@@ -25,12 +27,5 @@ class EventUpdatesController < ApplicationController
 
     def set_event
       @event = Event.friendly.find(params[:event_id])
-    end
-
-    def event_updates_params
-      {
-        details: params[:event_update][:details], 
-        user_id: current_user.id
-      }
     end
 end
